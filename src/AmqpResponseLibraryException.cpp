@@ -1,8 +1,9 @@
+/* vim:set ft=cpp ts=4 sw=4 sts=4 et cindent: */
 /*
  * ***** BEGIN LICENSE BLOCK *****
  * Version: MIT
  *
- * Copyright (c) 2010-2012 Alan Antonuk
+ * Copyright (c) 2010-2013 Alan Antonuk
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -33,23 +34,20 @@
 
 #include <stdlib.h>
 
-namespace AmqpClient {
-
-AmqpResponseLibraryException AmqpResponseLibraryException::CreateException(const amqp_rpc_reply_t_& reply, const std::string& context)
+namespace AmqpClient
 {
-  char* error_string = amqp_error_string(reply.library_error);
 
-  std::string message(context);
-  message.append(": ");
-  message.append(error_string);
+AmqpResponseLibraryException AmqpResponseLibraryException::CreateException(const amqp_rpc_reply_t_& reply, const std::string &context)
+{
+    std::string message(context);
+    message.append(": ");
+    message.append(amqp_error_string2(reply.library_error));
 
-  free(error_string);
-
-  return AmqpResponseLibraryException(message);
+    return AmqpResponseLibraryException(message);
 }
 
-AmqpResponseLibraryException::AmqpResponseLibraryException(const std::string& message) throw() :
-  std::runtime_error(message)
+AmqpResponseLibraryException::AmqpResponseLibraryException(const std::string &message) throw() :
+    std::runtime_error(message)
 {
 }
 

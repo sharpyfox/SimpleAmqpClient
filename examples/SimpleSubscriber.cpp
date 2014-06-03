@@ -1,12 +1,9 @@
+/* vim:set ft=cpp ts=4 sw=4 sts=4 et cindent: */
 /*
  * ***** BEGIN LICENSE BLOCK *****
  * Version: MIT
  *
- * Portions created by VMware are Copyright (c) 2007-2012 VMware, Inc.
- * All Rights Reserved.
- *
- * Portions created by Tony Garnock-Jones are Copyright (c) 2009-2010
- * VMware, Inc. and Tony Garnock-Jones. All Rights Reserved.
+ * Copyright (c) 2010-2013 Alan Antonuk
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -40,18 +37,18 @@
 namespace AmqpClient
 {
 
-SimpleSubscriber::SimpleSubscriber(Channel::ptr_t channel, const std::string& publisher_name) :
-	m_channel(channel)
+SimpleSubscriber::SimpleSubscriber(Channel::ptr_t channel, const std::string &publisher_name) :
+    m_channel(channel)
 {
-	m_consumerQueue = "SimpleSubscriber_";
-	boost::uuids::random_generator uuid_gen;
-	boost::uuids::uuid guid(uuid_gen());
-	m_consumerQueue += boost::lexical_cast<std::string>(guid);
+    m_consumerQueue = "SimpleSubscriber_";
+    boost::uuids::random_generator uuid_gen;
+    boost::uuids::uuid guid(uuid_gen());
+    m_consumerQueue += boost::lexical_cast<std::string>(guid);
 
-	m_channel->DeclareQueue(m_consumerQueue);
-	m_channel->BindQueue(m_consumerQueue, publisher_name);
+    m_channel->DeclareQueue(m_consumerQueue);
+    m_channel->BindQueue(m_consumerQueue, publisher_name);
 
-	m_channel->BasicConsume(m_consumerQueue, m_consumerQueue);
+    m_channel->BasicConsume(m_consumerQueue, m_consumerQueue);
 }
 
 SimpleSubscriber::~SimpleSubscriber()
@@ -60,13 +57,13 @@ SimpleSubscriber::~SimpleSubscriber()
 
 std::string SimpleSubscriber::WaitForMessageString()
 {
-	BasicMessage::ptr_t incoming = WaitForMessage();
-	return incoming->Body();
+    BasicMessage::ptr_t incoming = WaitForMessage();
+    return incoming->Body();
 }
 
 BasicMessage::ptr_t SimpleSubscriber::WaitForMessage()
 {
-	return m_channel->BasicConsumeMessage();
+    return m_channel->BasicConsumeMessage();
 }
 
 } //namespace AmqpClient

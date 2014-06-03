@@ -1,14 +1,11 @@
+/* vim:set ft=cpp ts=4 sw=4 sts=4 et cindent: */
 #ifndef SIMPLESUBSCRIBER_H
 #define SIMPLESUBSCRIBER_H
 /*
  * ***** BEGIN LICENSE BLOCK *****
  * Version: MIT
  *
- * Portions created by VMware are Copyright (c) 2007-2012 VMware, Inc.
- * All Rights Reserved.
- *
- * Portions created by Tony Garnock-Jones are Copyright (c) 2009-2010
- * VMware, Inc. and Tony Garnock-Jones. All Rights Reserved.
+ * Copyright (c) 2010-2013 Alan Antonuk
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -52,27 +49,29 @@ namespace AmqpClient
 class SIMPLEAMQPCLIENT_EXPORT SimpleSubscriber
 {
 public:
-	typedef boost::shared_ptr<SimpleSubscriber> ptr_t;
+    typedef boost::shared_ptr<SimpleSubscriber> ptr_t;
 
-	friend ptr_t
-		boost::make_shared<SimpleSubscriber>(AmqpClient::Channel::ptr_t const & a1, std::string const & a2);
+    friend ptr_t
+    boost::make_shared<SimpleSubscriber>(AmqpClient::Channel::ptr_t const &a1, std::string const &a2);
 
-	static ptr_t Create(AmqpClient::Channel::ptr_t channel, const std::string& publisher_channel)
-	{ return boost::make_shared<SimpleSubscriber>(channel, publisher_channel); }
+    static ptr_t Create(AmqpClient::Channel::ptr_t channel, const std::string &publisher_channel)
+    {
+        return boost::make_shared<SimpleSubscriber>(channel, publisher_channel);
+    }
 
 
 private:
-	SimpleSubscriber(Channel::ptr_t channel, const std::string &publisher_channel);
+    SimpleSubscriber(Channel::ptr_t channel, const std::string &publisher_channel);
 
 public:
-	virtual ~SimpleSubscriber();
+    virtual ~SimpleSubscriber();
 
-	std::string WaitForMessageString();
-	BasicMessage::ptr_t WaitForMessage();
+    std::string WaitForMessageString();
+    BasicMessage::ptr_t WaitForMessage();
 
 private:
-	Channel::ptr_t m_channel;
-	std::string m_consumerQueue;
+    Channel::ptr_t m_channel;
+    std::string m_consumerQueue;
 
 };
 

@@ -1,9 +1,11 @@
 /* vim:set ft=cpp ts=4 sw=4 sts=4 et cindent: */
+#ifndef SIMPLEAMQPCLIENT_VERSION_H_
+#define SIMPLEAMQPCLIENT_VERSION_H_
 /*
  * ***** BEGIN LICENSE BLOCK *****
  * Version: MIT
  *
- * Copyright (c) 2010-2013 Alan Antonuk
+ * Copyright (c) 2013 Alan Antonuk
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -27,35 +29,8 @@
  * ***** END LICENSE BLOCK *****
  */
 
-#include <SimpleAmqpClient.h>
+#define SIMPLEAMQPCLIENT_VERSION_MAJOR 2
+#define SIMPLEAMQPCLIENT_VERSION_MINOR 5
+#define SIMPLEAMQPCLIENT_VERSION_PATCH 0
 
-#include <iostream>
-#include <stdlib.h>
-
-using namespace AmqpClient;
-int main()
-{
-    char *szBroker = getenv("AMQP_BROKER");
-    Channel::ptr_t channel;
-    if (szBroker != NULL)
-        channel = Channel::Create(szBroker);
-    else
-        channel = Channel::Create();
-
-    channel->DeclareQueue("alanqueue");
-    channel->BindQueue("alanqueue", "amq.direct", "alankey");
-
-    BasicMessage::ptr_t msg_in = BasicMessage::Create();
-
-    msg_in->Body("This is a small message.");
-
-    channel->BasicPublish("amq.direct", "alankey", msg_in);
-
-    channel->BasicConsume("alanqueue", "consumertag");
-
-    BasicMessage::ptr_t msg_out = channel->BasicConsumeMessage("consumertag")->Message();
-
-    std::cout << "Message text: " << msg_out->Body() << std::endl;
-
-}
-
+#endif /* SIMPLEAMQPCLIENT_VERSION_H_ */

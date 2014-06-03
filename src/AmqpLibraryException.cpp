@@ -27,35 +27,38 @@
  * ***** END LICENSE BLOCK *****
  */
 
-#include <SimpleAmqpClient.h>
+// Put these first to avoid warnings about INT#_C macro redefinition
+#include <amqp.h>
 
-#include <iostream>
+#include "SimpleAmqpClient/AmqpLibraryException.h"
+
 #include <stdlib.h>
 
-using namespace AmqpClient;
-int main()
+namespace AmqpClient
 {
-    char *szBroker = getenv("AMQP_BROKER");
-    Channel::ptr_t channel;
-    if (szBroker != NULL)
-        channel = Channel::Create(szBroker);
-    else
-        channel = Channel::Create();
 
-    channel->DeclareQueue("alanqueue");
-    channel->BindQueue("alanqueue", "amq.direct", "alankey");
+AmqpLibraryException AmqpLibraryException::CreateException(int error_code)
+{
+    std::string message(amqp_error_string2(error_code));
 
-    BasicMessage::ptr_t msg_in = BasicMessage::Create();
-
-    msg_in->Body("This is a small message.");
-
-    channel->BasicPublish("amq.direct", "alankey", msg_in);
-
-    channel->BasicConsume("alanqueue", "consumertag");
-
-    BasicMessage::ptr_t msg_out = channel->BasicConsumeMessage("consumertag")->Message();
-
-    std::cout << "Message text: " << msg_out->Body() << std::endl;
-
+    return AmqpLibraryException(message, error_code);
 }
+
+AmqpLibraryException AmqpLibraryException::CreateException(
+    int error_code, const std::string &context)
+{
+    std::string message(context);
+    message.append(": ");
+    message.append(amqp_error_string2(error_code));
+
+    return AmqpLibraryException(message, error_code);
+}
+
+AmqpLibraryException::AmqpLibraryException(const std::string &message,
+                                           int error_code) throw()
+    : std::runtime_error(message), m_errorCode(error_code)
+{
+}
+
+} // namespace AmqpClient
 

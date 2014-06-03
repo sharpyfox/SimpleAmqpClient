@@ -1,14 +1,11 @@
+/* vim:set ft=cpp ts=4 sw=4 sts=4 et cindent: */
 #ifndef SIMPLERPCCLIENT_H
 #define SIMPLERPCCLIENT_H
 /*
  * ***** BEGIN LICENSE BLOCK *****
  * Version: MIT
  *
- * Portions created by VMware are Copyright (c) 2007-2012 VMware, Inc.
- * All Rights Reserved.
- *
- * Portions created by Tony Garnock-Jones are Copyright (c) 2009-2010
- * VMware, Inc. and Tony Garnock-Jones. All Rights Reserved.
+ * Copyright (c) 2010-2013 Alan Antonuk
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -46,32 +43,35 @@
 # pragma warning ( disable: 4275 4251 )
 #endif
 
-namespace AmqpClient {
+namespace AmqpClient
+{
 
 
 class SIMPLEAMQPCLIENT_EXPORT SimpleRpcClient : boost::noncopyable
 {
 public:
-	typedef boost::shared_ptr<SimpleRpcClient> ptr_t;
-	friend ptr_t boost::make_shared<SimpleRpcClient>(AmqpClient::Channel::ptr_t const & a1, std::string const & a2);
+    typedef boost::shared_ptr<SimpleRpcClient> ptr_t;
+    friend ptr_t boost::make_shared<SimpleRpcClient>(AmqpClient::Channel::ptr_t const &a1, std::string const &a2);
 
-	static ptr_t Create(Channel::ptr_t channel, const std::string& rpc_name) 
-	{ return boost::make_shared<SimpleRpcClient>(channel, rpc_name); }
+    static ptr_t Create(Channel::ptr_t channel, const std::string &rpc_name)
+    {
+        return boost::make_shared<SimpleRpcClient>(channel, rpc_name);
+    }
 
 private:
-	explicit SimpleRpcClient(Channel::ptr_t channel, const std::string& rpc_name);
+    explicit SimpleRpcClient(Channel::ptr_t channel, const std::string &rpc_name);
 
 public:
-	virtual ~SimpleRpcClient();
+    virtual ~SimpleRpcClient();
 
-	std::string Call(const std::string& message);
-	BasicMessage::ptr_t Call(BasicMessage::ptr_t message);
+    std::string Call(const std::string &message);
+    BasicMessage::ptr_t Call(BasicMessage::ptr_t message);
 
 
 private:
-	Channel::ptr_t m_channel;
-	const std::string m_outgoing_tag;
-	const std::string m_incoming_tag;
+    Channel::ptr_t m_channel;
+    const std::string m_outgoing_tag;
+    const std::string m_incoming_tag;
 };
 
 

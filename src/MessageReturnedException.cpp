@@ -1,8 +1,9 @@
+/* vim:set ft=cpp ts=4 sw=4 sts=4 et cindent: */
 /*
  * ***** BEGIN LICENSE BLOCK *****
  * Version: MIT
  *
- * Copyright (c) 2010-2012 Alan Antonuk
+ * Copyright (c) 2010-2013 Alan Antonuk
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -32,10 +33,10 @@
 
 namespace AmqpClient
 {
-MessageReturnedException::MessageReturnedException(BasicMessage::ptr_t message, boost::uint32_t reply_code, const std::string& reply_text,
-    const std::string& exchange, const std::string& routing_key) throw() :
-std::runtime_error(std::string("Message returned. Reply code: ").append(boost::lexical_cast<std::string>(reply_code)).append(" ").append(reply_text)),
-  m_message(message), m_reply_code(reply_code), m_reply_text(reply_text), m_exchange(exchange), m_routing_key(routing_key)
+MessageReturnedException::MessageReturnedException(BasicMessage::ptr_t message, boost::uint32_t reply_code, const std::string &reply_text,
+        const std::string &exchange, const std::string &routing_key) throw() :
+    std::runtime_error(std::string("Message returned. Reply code: ").append(boost::lexical_cast<std::string>(reply_code)).append(" ").append(reply_text)),
+    m_message(message), m_reply_code(reply_code), m_reply_text(reply_text), m_exchange(exchange), m_routing_key(routing_key)
 {
 }
 

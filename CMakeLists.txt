@@ -6,13 +6,14 @@ PROJECT(SimpleAmqpClient)
 # NOTE: THIS IS UNRELATED to the actual project version
 #
 # 1. If the library source code has changed at all since the last update, then increment revision
-# 2. If any interfaces have been added, removed, or changed since the last update, increment current and set revision to 0.
+# 2. If any interfaces have been added, removed, or changed since the last update, increment
+#    current and set revision to 0.
 # 3. If any interfaces have been added since the last public release, then increment age.
 # 4. If any interfaces have been removed since the last public release, then set age to 0.
 
-set(SAC_SOVERSION_CURRENT   4)
+set(SAC_SOVERSION_CURRENT   6)
 set(SAC_SOVERSION_REVISION  0)
-set(SAC_SOVERSION_AGE       2)
+set(SAC_SOVERSION_AGE       4)
 
 math(EXPR SAC_SOVERSION_MAJOR "${SAC_SOVERSION_CURRENT} - ${SAC_SOVERSION_AGE}")
 math(EXPR SAC_SOVERSION_MINOR "${SAC_SOVERSION_AGE}")
@@ -21,12 +22,28 @@ math(EXPR SAC_SOVERSION_PATCH "${SAC_SOVERSION_REVISION}")
 set(SAC_VERSION ${SAC_SOVERSION_MAJOR}.${SAC_SOVERSION_MINOR}.${SAC_SOVERSION_PATCH})
 set(SAC_SOVERSION ${SAC_SOVERSION_MAJOR})
 
+file(STRINGS src/SimpleAmqpClient/Version.h _API_VERSION_MAJOR REGEX "^#define SIMPLEAMQPCLIENT_VERSION_MAJOR [0-9]+$")
+file(STRINGS src/SimpleAmqpClient/Version.h _API_VERSION_MINOR REGEX "^#define SIMPLEAMQPCLIENT_VERSION_MINOR [0-9]+$")
+file(STRINGS src/SimpleAmqpClient/Version.h _API_VERSION_PATCH REGEX "^#define SIMPLEAMQPCLIENT_VERSION_PATCH [0-9]+$")
+
+string(REGEX MATCH "[0-9]+" _API_VERSION_MAJOR ${_API_VERSION_MAJOR})
+string(REGEX MATCH "[0-9]+" _API_VERSION_MINOR ${_API_VERSION_MINOR})
+string(REGEX MATCH "[0-9]+" _API_VERSION_PATCH ${_API_VERSION_PATCH})
+
+set(SAC_APIVERSION ${_API_VERSION_MAJOR}.${_API_VERSION_MINOR}.${_API_VERSION_PATCH})
+
 FIND_PACKAGE(Boost 1.47.0 COMPONENTS chrono system REQUIRED)
 INCLUDE_DIRECTORIES(SYSTEM ${Boost_INCLUDE_DIRS})
 
 SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/Modules)
 FIND_PACKAGE(Rabbitmqc REQUIRED)
 INCLUDE_DIRECTORIES(SYSTEM ${Rabbitmqc_INCLUDE_DIRS})
+
+option(ENABLE_SSL_SUPPORT "Enable SSL support." ${Rabbitmqc_SSL_ENABLED})
+
+if (ENABLE_SSL_SUPPORT)
+  add_definitions(-DSAC_SSL_SUPPORT_ENABLED)
+endif()
 
 if (CMAKE_GENERATOR MATCHES ".*(Make|Ninja).*"
     AND NOT CMAKE_BUILD_TYPE)
@@ -44,27 +61,7 @@ if (CMAKE_CXX_FLAGS STREQUAL ""
 endif ()
 
 INCLUDE_DIRECTORIES(BEFORE src
-	${CMAKE_CURRENT_BINARY_DIR})
-
-INCLUDE (CheckIncludeFile)
-
-# We need winsock32 if we're compiling on windows
-# This needs to match what rabbitmq-c does
-if (WIN32)
-	set(SOCKET_LIBRARY ws2_32)
-  CHECK_INCLUDE_FILE(winsock2.h HAVE_WINSOCK2_H)
-else ()
-  CHECK_INCLUDE_FILE(sys/socket.h HAVE_SYS_SOCKET_H)
-endif ()
-
-INCLUDE (CheckFunctionExists)
-
-CHECK_FUNCTION_EXISTS(strerror_s HAVE_STRERROR_S)
-SET(CMAKE_REQUIRED_DEFINITIONS "-D_XOPEN_SOURCE=600")
-CHECK_FUNCTION_EXISTS(strerror_r HAVE_STRERROR_R)
-UNSET(CMAKE_REQUIRED_DEFINITIONS)
-
-CONFIGURE_FILE(config.h.in config.h)
+    ${CMAKE_CURRENT_BINARY_DIR})
 
 option(BUILD_SHARED_LIBS "Build SimpleAmqpClient as a shared library" ON)
 
@@ -73,41 +70,44 @@ if (WIN32 AND NOT BUILD_SHARED_LIBS)
 endif()
 
 SET(SAC_LIB_SRCS
-	src/SimpleAmqpClient/SimpleAmqpClient.h
+    src/SimpleAmqpClient/SimpleAmqpClient.h
 
-	src/SimpleAmqpClient/AmqpException.h
-	src/AmqpException.cpp
+    src/SimpleAmqpClient/AmqpException.h
+    src/AmqpException.cpp
 
-	src/SimpleAmqpClient/Channel.h
-	src/Channel.cpp
+    src/SimpleAmqpClient/Channel.h
+    src/Channel.cpp
 
-	src/SimpleAmqpClient/ChannelImpl.h
-	src/ChannelImpl.cpp
+    src/SimpleAmqpClient/ChannelImpl.h
+    src/ChannelImpl.cpp
 
-	src/SimpleAmqpClient/BasicMessage.h
-	src/BasicMessage.cpp
+    src/SimpleAmqpClient/BasicMessage.h
+    src/BasicMessage.cpp
 
-	src/SimpleAmqpClient/Util.h
+    src/SimpleAmqpClient/Util.h
 
-	src/SimpleAmqpClient/AmqpResponseLibraryException.h
-	src/AmqpResponseLibraryException.cpp
+    src/SimpleAmqpClient/AmqpLibraryException.h
+    src/AmqpLibraryException.cpp
 
-  src/SimpleAmqpClient/BadUriException.h
-	src/SimpleAmqpClient/ConnectionClosedException.h
-	src/SimpleAmqpClient/ConsumerTagNotFoundException.h
+    src/SimpleAmqpClient/AmqpResponseLibraryException.h
+    src/AmqpResponseLibraryException.cpp
 
-	src/SimpleAmqpClient/Envelope.h
-	src/Envelope.cpp
+    src/SimpleAmqpClient/BadUriException.h
+    src/SimpleAmqpClient/ConnectionClosedException.h
+    src/SimpleAmqpClient/ConsumerTagNotFoundException.h
 
-	src/SimpleAmqpClient/MessageReturnedException.h
-	src/MessageReturnedException.cpp
- 
-  src/SimpleAmqpClient/Table.h
-  src/Table.cpp
- 
-  src/SimpleAmqpClient/TableImpl.h
-  src/TableImpl.cpp
-	)
+    src/SimpleAmqpClient/Envelope.h
+    src/Envelope.cpp
+
+    src/SimpleAmqpClient/MessageReturnedException.h
+    src/MessageReturnedException.cpp
+
+    src/SimpleAmqpClient/Table.h
+    src/Table.cpp
+
+    src/SimpleAmqpClient/TableImpl.h
+    src/TableImpl.cpp
+    )
 
 
 ADD_LIBRARY(SimpleAmqpClient ${SAC_LIB_SRCS})
@@ -145,9 +145,9 @@ endif ()
 option(ENABLE_TESTING "Enable smoke tests" OFF)
 
 if (ENABLE_TESTING)
-  enable_testing()
-  add_subdirectory(third-party/gtest-1.6.0)
-	add_subdirectory(testing)
+    enable_testing()
+    add_subdirectory(third-party/gtest-1.7.0)
+    add_subdirectory(testing)
 endif (ENABLE_TESTING)
 
 
@@ -157,22 +157,51 @@ SET(PROJECT_VERSION ${SAC_VERSION})
 INCLUDE(UseDoxygen)
 
 INSTALL(TARGETS SimpleAmqpClient
-	RUNTIME DESTINATION bin
-	ARCHIVE DESTINATION lib
-	LIBRARY DESTINATION lib
-	)
+    RUNTIME DESTINATION bin
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    )
 
 INSTALL(FILES
-	src/SimpleAmqpClient/SimpleAmqpClient.h
-	src/SimpleAmqpClient/AmqpException.h
-	src/SimpleAmqpClient/Channel.h
-	src/SimpleAmqpClient/BasicMessage.h
-	src/SimpleAmqpClient/Util.h
-	src/SimpleAmqpClient/AmqpResponseLibraryException.h
-	src/SimpleAmqpClient/ConnectionClosedException.h
-	src/SimpleAmqpClient/ConsumerTagNotFoundException.h
-	src/SimpleAmqpClient/Envelope.h
-	src/SimpleAmqpClient/MessageReturnedException.h
-  src/SimpleAmqpClient/Table.h
-	DESTINATION include/SimpleAmqpClient
-	)
+    src/SimpleAmqpClient/AmqpException.h
+    src/SimpleAmqpClient/AmqpLibraryException.h
+    src/SimpleAmqpClient/AmqpResponseLibraryException.h
+    src/SimpleAmqpClient/BadUriException.h
+    src/SimpleAmqpClient/BasicMessage.h
+    src/SimpleAmqpClient/Channel.h
+    src/SimpleAmqpClient/ConnectionClosedException.h
+    src/SimpleAmqpClient/ConsumerCancelledException.h
+    src/SimpleAmqpClient/ConsumerTagNotFoundException.h
+    src/SimpleAmqpClient/Envelope.h
+    src/SimpleAmqpClient/MessageReturnedException.h
+    src/SimpleAmqpClient/SimpleAmqpClient.h
+    src/SimpleAmqpClient/Table.h
+    src/SimpleAmqpClient/Util.h
+    src/SimpleAmqpClient/Version.h
+    DESTINATION include/SimpleAmqpClient
+    )
+
+set(prefix ${CMAKE_INSTALL_PREFIX})
+set(exec_prefix "\${prefix}")
+set(libdir "\${exec_prefix}/lib")
+set(includedir "\${prefix}/include")
+
+foreach(_lib ${Boost_LIBRARIES})
+    get_filename_component(_LIBPATH ${_lib} PATH)
+    if (NOT _LIBPATH STREQUAL _LASTLIBPATH)
+        set(libs_private "${libs_private} -L${_LIBPATH}")
+        set(_LASTLIBPATH ${_LIBPATH})
+    endif()
+
+    get_filename_component(_LIBNAME ${_lib} NAME_WE)
+    string(REGEX REPLACE "^lib" "" _LIBNAME ${_LIBNAME})
+    set(_LIBNAME "-l${_LIBNAME}")
+    set(libs_private "${libs_private} ${_LIBNAME}")
+endforeach()
+
+configure_file(libSimpleAmqpClient.pc.in ${CMAKE_CURRENT_BINARY_DIR}/libSimpleAmqpClient.pc @ONLY)
+
+install(FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/libSimpleAmqpClient.pc
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/pkgconfig
+    )

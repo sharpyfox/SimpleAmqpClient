@@ -1,14 +1,11 @@
+/* vim:set ft=cpp ts=4 sw=4 sts=4 et cindent: */
 #ifndef SIMPLERPCSERVER_H
 #define SIMPLERPCSERVER_H
 /*
  * ***** BEGIN LICENSE BLOCK *****
  * Version: MIT
  *
- * Portions created by VMware are Copyright (c) 2007-2012 VMware, Inc.
- * All Rights Reserved.
- *
- * Portions created by Tony Garnock-Jones are Copyright (c) 2009-2010
- * VMware, Inc. and Tony Garnock-Jones. All Rights Reserved.
+ * Copyright (c) 2010-2013 Alan Antonuk
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -44,42 +41,48 @@
 #ifdef _MSC_VER
 # pragma warning ( push )
 # pragma warning ( disable: 4275 4251 )
-#endif 
+#endif
 
-namespace AmqpClient {
+namespace AmqpClient
+{
 
 
 class SIMPLEAMQPCLIENT_EXPORT SimpleRpcServer : boost::noncopyable
 {
 public:
-	typedef boost::shared_ptr<SimpleRpcServer> ptr_t;
+    typedef boost::shared_ptr<SimpleRpcServer> ptr_t;
 
-	friend ptr_t boost::make_shared<SimpleRpcServer>(AmqpClient::Channel::ptr_t const & a1, std::string const & a2);
+    friend ptr_t boost::make_shared<SimpleRpcServer>(AmqpClient::Channel::ptr_t const &a1, std::string const &a2);
 
-	static ptr_t Create(Channel::ptr_t channel, const std::string& rpc_name = "") 
-		{ return boost::make_shared<SimpleRpcServer>(channel, rpc_name); }
+    static ptr_t Create(Channel::ptr_t channel, const std::string &rpc_name = "")
+    {
+        return boost::make_shared<SimpleRpcServer>(channel, rpc_name);
+    }
 
 private:
-	explicit SimpleRpcServer(Channel::ptr_t channel, const std::string& rpc_name);
+    explicit SimpleRpcServer(Channel::ptr_t channel, const std::string &rpc_name);
 
 public:
-	virtual ~SimpleRpcServer();
+    virtual ~SimpleRpcServer();
 
-	std::string GetRpcName() const { return m_incoming_tag; }
+    std::string GetRpcName() const
+    {
+        return m_incoming_tag;
+    }
 
-	BasicMessage::ptr_t GetNextIncomingMessage();
+    BasicMessage::ptr_t GetNextIncomingMessage();
 
-	bool GetNextIncomingMessage(BasicMessage::ptr_t& message, int timeout);
+    bool GetNextIncomingMessage(BasicMessage::ptr_t &message, int timeout);
 
-	void RespondToMessage(BasicMessage::ptr_t request, 
-						  BasicMessage::ptr_t response);
+    void RespondToMessage(BasicMessage::ptr_t request,
+                          BasicMessage::ptr_t response);
 
-	void RespondToMessage(BasicMessage::ptr_t request,
-						  const std::string response);
+    void RespondToMessage(BasicMessage::ptr_t request,
+                          const std::string response);
 
 private:
-	Channel::ptr_t m_channel;
-	const std::string m_incoming_tag;
+    Channel::ptr_t m_channel;
+    const std::string m_incoming_tag;
 
 
 

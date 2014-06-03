@@ -1,10 +1,11 @@
+/* vim:set ft=cpp ts=4 sw=4 sts=4 et cindent: */
 #ifndef BAD_URI_EXCEPTION_H
 #define BAD_URI_EXCEPTION_H
 /*
  * ***** BEGIN LICENSE BLOCK *****
  * Version: MIT
  *
- * Copyright (c) 2010-2012 Alan Antonuk
+ * Copyright (c) 2010-2013 Alan Antonuk
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -36,8 +37,8 @@ namespace AmqpClient
 class BadUriException : public std::runtime_error
 {
 public:
-  explicit BadUriException() :
-    std::runtime_error("URI is malformed") {} 
+    explicit BadUriException() :
+        std::runtime_error("URI is malformed") {}
 };
 } // namespace AmqpClient
 #endif // BAD_URI_EXCEPTION_H

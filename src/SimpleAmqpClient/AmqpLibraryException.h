@@ -1,9 +1,11 @@
 /* vim:set ft=cpp ts=4 sw=4 sts=4 et cindent: */
+#ifndef AMQPLIBRARYEXCEPTION_H
+#define AMQPLIBRARYEXCEPTION_H
 /*
  * ***** BEGIN LICENSE BLOCK *****
  * Version: MIT
  *
- * Copyright (c) 2010-2013 Alan Antonuk
+ * Copyright (c) 2014 Alan Antonuk
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -27,35 +29,43 @@
  * ***** END LICENSE BLOCK *****
  */
 
-#include <SimpleAmqpClient.h>
+#include "SimpleAmqpClient/Util.h"
 
-#include <iostream>
-#include <stdlib.h>
+#include <stdexcept>
+#include <string>
 
-using namespace AmqpClient;
-int main()
+#ifdef _MSC_VER
+# pragma warning ( push )
+# pragma warning ( disable: 4251 4275 )
+#endif
+
+struct amqp_rpc_reply_t_;
+
+namespace AmqpClient
 {
-    char *szBroker = getenv("AMQP_BROKER");
-    Channel::ptr_t channel;
-    if (szBroker != NULL)
-        channel = Channel::Create(szBroker);
-    else
-        channel = Channel::Create();
 
-    channel->DeclareQueue("alanqueue");
-    channel->BindQueue("alanqueue", "amq.direct", "alankey");
+class SIMPLEAMQPCLIENT_EXPORT AmqpLibraryException : public std::runtime_error
+{
+public:
+ static AmqpLibraryException CreateException(int error_code);
+ static AmqpLibraryException CreateException(int error_code,
+                                             const std::string &context);
 
-    BasicMessage::ptr_t msg_in = BasicMessage::Create();
+    int ErrorCode() const { return m_errorCode; }
 
-    msg_in->Body("This is a small message.");
+protected:
+ explicit AmqpLibraryException(const std::string &message,
+                               int error_code) throw();
 
-    channel->BasicPublish("amq.direct", "alankey", msg_in);
+private:
+    int m_errorCode;
+};
 
-    channel->BasicConsume("alanqueue", "consumertag");
+} // namespace AmqpClient
 
-    BasicMessage::ptr_t msg_out = channel->BasicConsumeMessage("consumertag")->Message();
+#ifdef _MSC_VER
+# pragma warning ( pop )
+#endif
 
-    std::cout << "Message text: " << msg_out->Body() << std::endl;
-
-}
+#endif // AMQPLIBRARYEXCEPTION_H
 

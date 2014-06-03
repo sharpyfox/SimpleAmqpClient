@@ -1,12 +1,9 @@
+/* vim:set ft=cpp ts=4 sw=4 sts=4 et cindent: */
 /*
  * ***** BEGIN LICENSE BLOCK *****
  * Version: MIT
  *
- * Portions created by VMware are Copyright (c) 2007-2012 VMware, Inc.
- * All Rights Reserved.
- *
- * Portions created by Tony Garnock-Jones are Copyright (c) 2009-2010
- * VMware, Inc. and Tony Garnock-Jones. All Rights Reserved.
+ * Copyright (c) 2010-2013 Alan Antonuk
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -33,39 +30,40 @@
 #include "SimpleRpcClient.h"
 #include "BasicMessage.h"
 
-namespace AmqpClient {
-
-SimpleRpcClient::SimpleRpcClient(Channel::ptr_t channel, const std::string& rpc_name) :
-	m_channel(channel), m_outgoing_tag(rpc_name),
-	// Declare the reply queue, by passing an empty string, the broker will
-	// give us a name
-	m_incoming_tag(m_channel->DeclareQueue(""))
+namespace AmqpClient
 {
-	m_channel->BindQueue(m_incoming_tag, "amq.direct", m_incoming_tag);
-	m_channel->BasicConsume(m_incoming_tag, m_incoming_tag);
+
+SimpleRpcClient::SimpleRpcClient(Channel::ptr_t channel, const std::string &rpc_name) :
+    m_channel(channel), m_outgoing_tag(rpc_name),
+    // Declare the reply queue, by passing an empty string, the broker will
+    // give us a name
+    m_incoming_tag(m_channel->DeclareQueue(""))
+{
+    m_channel->BindQueue(m_incoming_tag, "amq.direct", m_incoming_tag);
+    m_channel->BasicConsume(m_incoming_tag, m_incoming_tag);
 }
 
 SimpleRpcClient::~SimpleRpcClient()
 {
 }
 
-std::string SimpleRpcClient::Call(const std::string& message)
+std::string SimpleRpcClient::Call(const std::string &message)
 {
-	BasicMessage::ptr_t outgoing_msg = BasicMessage::Create();
-	outgoing_msg->Body(message);
+    BasicMessage::ptr_t outgoing_msg = BasicMessage::Create();
+    outgoing_msg->Body(message);
 
-	BasicMessage::ptr_t reply = Call(outgoing_msg);
-	return reply->Body();
+    BasicMessage::ptr_t reply = Call(outgoing_msg);
+    return reply->Body();
 }
 
 BasicMessage::ptr_t SimpleRpcClient::Call(BasicMessage::ptr_t message)
 {
-	message->ReplyTo(m_incoming_tag);
-	m_channel->BasicPublish("amq.direct", m_outgoing_tag, message);
+    message->ReplyTo(m_incoming_tag);
+    m_channel->BasicPublish("amq.direct", m_outgoing_tag, message);
 
-	BasicMessage::ptr_t incoming_msg = m_channel->BasicConsumeMessage(m_incoming_tag)->Message();
+    BasicMessage::ptr_t incoming_msg = m_channel->BasicConsumeMessage(m_incoming_tag)->Message();
 
-	return incoming_msg;
+    return incoming_msg;
 }
 
 } // namespace AmqpClient

@@ -1,8 +1,9 @@
+/* vim:set ft=cpp ts=4 sw=4 sts=4 et cindent: */
 /*
  * ***** BEGIN LICENSE BLOCK *****
  * Version: MIT
  *
- * Copyright (c) 2010-2012 Alan Antonuk
+ * Copyright (c) 2010-2013 Alan Antonuk
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -31,16 +32,16 @@
 namespace AmqpClient
 {
 
-Envelope::Envelope(const BasicMessage::ptr_t message, const std::string& consumer_tag,
-    const boost::uint64_t delivery_tag, const std::string& exchange, bool redelivered, const std::string& routing_key,
-    const boost::uint16_t delivery_channel)
-  : m_message(message)
-  , m_consumerTag(consumer_tag)
-  , m_deliveryTag(delivery_tag)
-  , m_exchange(exchange)
-  , m_redelivered(redelivered)
-  , m_routingKey(routing_key)
-  , m_deliveryChannel(delivery_channel)
+Envelope::Envelope(const BasicMessage::ptr_t message, const std::string &consumer_tag,
+                   const boost::uint64_t delivery_tag, const std::string &exchange, bool redelivered, const std::string &routing_key,
+                   const boost::uint16_t delivery_channel)
+    : m_message(message)
+    , m_consumerTag(consumer_tag)
+    , m_deliveryTag(delivery_tag)
+    , m_exchange(exchange)
+    , m_redelivered(redelivered)
+    , m_routingKey(routing_key)
+    , m_deliveryChannel(delivery_channel)
 {
 }
 

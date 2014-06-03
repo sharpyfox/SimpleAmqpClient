@@ -1,10 +1,11 @@
+/* vim:set ft=cpp ts=4 sw=4 sts=4 et cindent: */
 #ifndef AMQPRESPONSELIBRARYEXCEPTION_H
 #define AMQPRESPONSELIBRARYEXCEPTION_H
 /*
  * ***** BEGIN LICENSE BLOCK *****
  * Version: MIT
  *
- * Copyright (c) 2010-2012 Alan Antonuk
+ * Copyright (c) 2010-2013 Alan Antonuk
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -41,14 +42,15 @@
 
 struct amqp_rpc_reply_t_;
 
-namespace AmqpClient {
+namespace AmqpClient
+{
 
 class SIMPLEAMQPCLIENT_EXPORT AmqpResponseLibraryException : public std::runtime_error
 {
 public:
-    static AmqpResponseLibraryException CreateException(const amqp_rpc_reply_t_& reply, const std::string& context);
+    static AmqpResponseLibraryException CreateException(const amqp_rpc_reply_t_& reply, const std::string &context);
 protected:
-    explicit AmqpResponseLibraryException(const std::string& message) throw();
+    explicit AmqpResponseLibraryException(const std::string &message) throw();
 };
 
 } // namespace AmqpClient

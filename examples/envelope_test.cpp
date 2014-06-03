@@ -1,12 +1,9 @@
+/* vim:set ft=cpp ts=4 sw=4 sts=4 et cindent: */
 /*
  * ***** BEGIN LICENSE BLOCK *****
  * Version: MIT
  *
- * Portions created by VMware are Copyright (c) 2007-2012 VMware, Inc.
- * All Rights Reserved.
- *
- * Portions created by Tony Garnock-Jones are Copyright (c) 2009-2010
- * VMware, Inc. and Tony Garnock-Jones. All Rights Reserved.
+ * Copyright (c) 2010-2013 Alan Antonuk
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -37,55 +34,55 @@
 using namespace AmqpClient;
 int main()
 {
-  const std::string EXCHANGE_NAME = "SimpleAmqpClientEnvelopeTest";
-  const std::string ROUTING_KEY = "SACRoutingKey";
-  const std::string CONSUMER_TAG = "SACConsumerTag";
-
-  try
-  {
-    Channel::ptr_t channel = Channel::Create();
-
-    channel->DeclareExchange(EXCHANGE_NAME, Channel::EXCHANGE_TYPE_FANOUT);
-    std::string queue = channel->DeclareQueue("");
-    channel->BindQueue(queue, EXCHANGE_NAME, ROUTING_KEY);
+    const std::string EXCHANGE_NAME = "SimpleAmqpClientEnvelopeTest";
+    const std::string ROUTING_KEY = "SACRoutingKey";
+    const std::string CONSUMER_TAG = "SACConsumerTag";
 
     try
     {
-      channel->BasicPublish(EXCHANGE_NAME, ROUTING_KEY, BasicMessage::Create("MessageBody"));
-      channel->BasicPublish(EXCHANGE_NAME, ROUTING_KEY, BasicMessage::Create("MessageBody2"));
-      channel->BasicPublish(EXCHANGE_NAME, ROUTING_KEY, BasicMessage::Create("MessageBody3"));
-    }
-    catch (MessageReturnedException& e)
-    {
-      std::cout << "Message got returned: " << e.what();
-      std::cout << "\nMessage body: " << e.message()->Body();
-      return -1;
-    }
+        Channel::ptr_t channel = Channel::Create();
 
-    channel->BasicConsume(queue, CONSUMER_TAG);
+        channel->DeclareExchange(EXCHANGE_NAME, Channel::EXCHANGE_TYPE_FANOUT);
+        std::string queue = channel->DeclareQueue("");
+        channel->BindQueue(queue, EXCHANGE_NAME, ROUTING_KEY);
 
-    Envelope::ptr_t env;
-    for (int i = 0; i < 3; ++i)
-    {
-      if (channel->BasicConsumeMessage(CONSUMER_TAG, env, 0)) 
-      {
-        std::cout << "Envelope received: \n" 
-          << " Exchange: " << env->Exchange()
-          << "\n Routing key: " << env->RoutingKey() 
-          << "\n Consumer tag: " << env->ConsumerTag()
-          << "\n Delivery tag: " << env->DeliveryTag()
-          << "\n Redelivered: " << env->Redelivered() 
-          << "\n Body: " << env->Message()->Body() << std::endl;
-      }
-      else
-      {
-        std::cout << "Basic Consume failed.\n";
-      }
+        try
+        {
+            channel->BasicPublish(EXCHANGE_NAME, ROUTING_KEY, BasicMessage::Create("MessageBody"));
+            channel->BasicPublish(EXCHANGE_NAME, ROUTING_KEY, BasicMessage::Create("MessageBody2"));
+            channel->BasicPublish(EXCHANGE_NAME, ROUTING_KEY, BasicMessage::Create("MessageBody3"));
+        }
+        catch (MessageReturnedException &e)
+        {
+            std::cout << "Message got returned: " << e.what();
+            std::cout << "\nMessage body: " << e.message()->Body();
+            return -1;
+        }
+
+        channel->BasicConsume(queue, CONSUMER_TAG);
+
+        Envelope::ptr_t env;
+        for (int i = 0; i < 3; ++i)
+        {
+            if (channel->BasicConsumeMessage(CONSUMER_TAG, env, 0))
+            {
+                std::cout << "Envelope received: \n"
+                          << " Exchange: " << env->Exchange()
+                          << "\n Routing key: " << env->RoutingKey()
+                          << "\n Consumer tag: " << env->ConsumerTag()
+                          << "\n Delivery tag: " << env->DeliveryTag()
+                          << "\n Redelivered: " << env->Redelivered()
+                          << "\n Body: " << env->Message()->Body() << std::endl;
+            }
+            else
+            {
+                std::cout << "Basic Consume failed.\n";
+            }
+        }
     }
-  }
-  catch (AmqpException& e)
-  {
-    std::cout << "Failure: " << e.what();
-  }
-  return 0;
+    catch (AmqpException &e)
+    {
+        std::cout << "Failure: " << e.what();
+    }
+    return 0;
 }

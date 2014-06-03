@@ -1,12 +1,9 @@
+/* vim:set ft=cpp ts=4 sw=4 sts=4 et cindent: */
 /*
  * ***** BEGIN LICENSE BLOCK *****
  * Version: MIT
  *
- * Portions created by VMware are Copyright (c) 2007-2012 VMware, Inc.
- * All Rights Reserved.
- *
- * Portions created by Tony Garnock-Jones are Copyright (c) 2009-2010
- * VMware, Inc. and Tony Garnock-Jones. All Rights Reserved.
+ * Copyright (c) 2010-2013 Alan Antonuk
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -33,15 +30,16 @@
 #include "SimpleRpcServer.h"
 
 
-namespace AmqpClient {
+namespace AmqpClient
+{
 
-SimpleRpcServer::SimpleRpcServer(Channel::ptr_t channel, const std::string& rpc_name) :
-	m_channel(channel)
-  , m_incoming_tag(m_channel->DeclareQueue(rpc_name))
+SimpleRpcServer::SimpleRpcServer(Channel::ptr_t channel, const std::string &rpc_name) :
+    m_channel(channel)
+    , m_incoming_tag(m_channel->DeclareQueue(rpc_name))
 
 {
-	m_channel->BindQueue(m_incoming_tag, "amq.direct", m_incoming_tag);
-	m_channel->BasicConsume(m_incoming_tag, m_incoming_tag);
+    m_channel->BindQueue(m_incoming_tag, "amq.direct", m_incoming_tag);
+    m_channel->BasicConsume(m_incoming_tag, m_incoming_tag);
 }
 
 SimpleRpcServer::~SimpleRpcServer()
@@ -50,36 +48,39 @@ SimpleRpcServer::~SimpleRpcServer()
 
 BasicMessage::ptr_t SimpleRpcServer::GetNextIncomingMessage()
 {
-	return m_channel->BasicConsumeMessage(m_incoming_tag)->Message();
+    return m_channel->BasicConsumeMessage(m_incoming_tag)->Message();
 }
 
-bool SimpleRpcServer::GetNextIncomingMessage(BasicMessage::ptr_t& message, int timeout)
+bool SimpleRpcServer::GetNextIncomingMessage(BasicMessage::ptr_t &message, int timeout)
 {
-	Envelope::ptr_t env;
-	if (m_channel->BasicConsumeMessage(m_incoming_tag, env, timeout)) {
-		message = env->Message();
-		return true;
-	} else {
-		return false;
-	}
+    Envelope::ptr_t env;
+    if (m_channel->BasicConsumeMessage(m_incoming_tag, env, timeout))
+    {
+        message = env->Message();
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 void SimpleRpcServer::RespondToMessage(BasicMessage::ptr_t request, BasicMessage::ptr_t response)
 {
-	if (request->CorrelationIdIsSet() && !response->CorrelationIdIsSet())
-	{
-		response->CorrelationId(request->CorrelationId());
-	}
+    if (request->CorrelationIdIsSet() && !response->CorrelationIdIsSet())
+    {
+        response->CorrelationId(request->CorrelationId());
+    }
 
-	m_channel->BasicPublish("amq.direct", request->ReplyTo(), response);
+    m_channel->BasicPublish("amq.direct", request->ReplyTo(), response);
 }
 
 void SimpleRpcServer::RespondToMessage(BasicMessage::ptr_t request, const std::string response)
 {
-	BasicMessage::ptr_t response_message = BasicMessage::Create();
-	response_message->Body(response);
+    BasicMessage::ptr_t response_message = BasicMessage::Create();
+    response_message->Body(response);
 
-	RespondToMessage(request, response_message);
+    RespondToMessage(request, response_message);
 }
 
 } // namespace AmqpClient

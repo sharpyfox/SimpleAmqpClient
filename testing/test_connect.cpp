@@ -1,8 +1,9 @@
+/* vim:set ft=cpp ts=4 sw=4 sts=4 et cindent: */
 /*
  * ***** BEGIN LICENSE BLOCK *****
  * Version: MIT
  *
- * Copyright (c) 2010-2012 Alan Antonuk
+ * Copyright (c) 2010-2013 Alan Antonuk
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -35,28 +36,28 @@ using namespace AmqpClient;
 
 TEST(connecting_test, connect_default)
 {
-  Channel::ptr_t channel = Channel::Create(connected_test::GetBrokerHost());
+    Channel::ptr_t channel = Channel::Create(connected_test::GetBrokerHost());
 }
 
 TEST(connecting_test, connect_badhost)
 {
-  EXPECT_THROW(Channel::ptr_t channel = Channel::Create("HostDoesntExist"), std::runtime_error);
+    EXPECT_THROW(Channel::ptr_t channel = Channel::Create("HostDoesntExist"), std::runtime_error);
 }
 
 TEST(connecting_test, connect_badauth)
 {
-  EXPECT_THROW(Channel::ptr_t channel = Channel::Create(connected_test::GetBrokerHost(), 5672, "baduser", "badpass"), AmqpResponseLibraryException);
+    EXPECT_THROW(Channel::ptr_t channel = Channel::Create(connected_test::GetBrokerHost(), 5672, "baduser", "badpass"), AmqpResponseLibraryException);
 }
 
 TEST(connecting_test, connect_badframesize)
 {
-  // AMQP Spec says we have a minimum frame size of 4096
-  EXPECT_THROW(Channel::ptr_t channel = Channel::Create(connected_test::GetBrokerHost(), 5672, "guest", "guest", "/", 400), AmqpResponseLibraryException);
+    // AMQP Spec says we have a minimum frame size of 4096
+    EXPECT_THROW(Channel::ptr_t channel = Channel::Create(connected_test::GetBrokerHost(), 5672, "guest", "guest", "/", 400), AmqpResponseLibraryException);
 }
 
 TEST(connecting_test, connect_badvhost)
 {
-  EXPECT_THROW(Channel::ptr_t channel = Channel::Create(connected_test::GetBrokerHost(), 5672, "guest", "guest", "nonexitant_vhost"), AmqpResponseLibraryException);
+    EXPECT_THROW(Channel::ptr_t channel = Channel::Create(connected_test::GetBrokerHost(), 5672, "guest", "guest", "nonexitant_vhost"), AmqpResponseLibraryException);
 }
 
 TEST(connecting_test, connect_using_uri)

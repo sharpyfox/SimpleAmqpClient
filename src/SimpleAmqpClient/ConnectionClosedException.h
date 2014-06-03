@@ -1,10 +1,11 @@
+/* vim:set ft=cpp ts=4 sw=4 sts=4 et cindent: */
 #ifndef CONNECTION_CLOSED_EXCEPTION_H
 #define CONNECTION_CLOSED_EXCEPTION_H
 /*
  * ***** BEGIN LICENSE BLOCK *****
  * Version: MIT
  *
- * Copyright (c) 2010-2012 Alan Antonuk
+ * Copyright (c) 2010-2013 Alan Antonuk
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -36,8 +37,8 @@ namespace AmqpClient
 class ConnectionClosedException : public std::runtime_error
 {
 public:
-  explicit ConnectionClosedException() :
-    std::runtime_error("Connection is closed") {} 
+    explicit ConnectionClosedException() :
+        std::runtime_error("Connection is closed") {}
 };
 } // namespace AmqpClient
 #endif // CONNECTION_CLOSED_EXCEPTION_H

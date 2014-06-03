@@ -32,7 +32,7 @@
 
 using namespace AmqpClient;
 
-TEST_F(connected_test, basic_ack_envelope)
+TEST_F(connected_test, basic_nack_envelope)
 {
     const BasicMessage::ptr_t message = BasicMessage::Create("Message Body");
     std::string queue = channel->DeclareQueue("");
@@ -42,10 +42,10 @@ TEST_F(connected_test, basic_ack_envelope)
 
     Envelope::ptr_t env = channel->BasicConsumeMessage(consumer);
 
-    channel->BasicAck(env);
+    channel->BasicReject(env, false);
 }
 
-TEST_F(connected_test, basic_ack_deliveryinfo)
+TEST_F(connected_test, basic_nack_deliveryinfo)
 {
     const BasicMessage::ptr_t message = BasicMessage::Create("Message Body");
     std::string queue = channel->DeclareQueue("");
@@ -59,6 +59,25 @@ TEST_F(connected_test, basic_ack_deliveryinfo)
         info = env->GetDeliveryInfo();
     }
 
-    channel->BasicAck(info);
+    channel->BasicReject(info,false);
 
 }
+
+
+TEST_F(connected_test, basic_nack_envelope_with_requeue)
+{
+    const BasicMessage::ptr_t message = BasicMessage::Create("Message Body");
+    std::string queue = channel->DeclareQueue("");
+    channel->BasicPublish("", queue, message);
+
+    std::string consumer = channel->BasicConsume(queue, "", true, false);
+
+    Envelope::ptr_t env = channel->BasicConsumeMessage(consumer);
+
+    channel->BasicReject(env, true);
+
+    Envelope::ptr_t env2 = channel->BasicConsumeMessage(consumer);
+
+    channel->BasicReject(env2, false);
+}
+
